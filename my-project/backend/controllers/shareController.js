@@ -1,9 +1,19 @@
 const jwt = require('jsonwebtoken');
+const Record = require('../models/Record');
+const SharedQR = require('../models/SharedQR');
 
-exports.generateQRToken = (req, res) => {
-  const { recordId } = req.body;
-  const token = jwt.sign({ recordId }, process.env.JWT_SECRET, { expiresIn: '24h' });
-  res.json({ qrUrl: `https://medvault-backend.onrender.com/api/share/access/${token}` });
+exports.generateQRToken = async (req, res) => {
+  try {
+    const { recordId } = req.body;
+    const token = jwt.sign({ recordId }, process.env.JWT_SECRET, { expiresIn: '24h' });
+
+    await SharedQR.create({ recordId, token });
+
+    // Use localhost in development
+   res.json({ qrUrl: `${process.env.SERVER_IP}/api/share/access/${token}` });
+  } catch (err) {
+    res.status(500).json({ message: 'QR Generation Failed', error: err.message });
+  }
 };
 
 exports.accessSharedRecord = async (req, res) => {

@@ -1,18 +1,28 @@
 import { useEffect, useState } from 'react';
 import API from '../api/axios';
 import RecordCard from '../components/RecordCard';
+import ShareQR from './ShareQR';
 
 const Dashboard = () => {
   const [records, setRecords] = useState([]);
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    API.get('/records/all').then((res) => setRecords(res.data));
+    const fetchRecords = async () => {
+      try {
+        const res = await API.get('/records/all');
+        setRecords(res.data);
+      } catch (err) {
+        console.error('Failed to fetch records:', err);
+      }
+    };
+
+    fetchRecords();
   }, []);
 
-  const filtered = records.filter(r =>
-    r.condition.toLowerCase().includes(search.toLowerCase()) ||
-    r.doctor.toLowerCase().includes(search.toLowerCase())
+  const filtered = records.filter((r) =>
+    r.condition?.toLowerCase().includes(search.toLowerCase()) ||
+    r.doctor?.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -24,7 +34,10 @@ const Dashboard = () => {
       />
       <div className="grid md:grid-cols-2 gap-4">
         {filtered.map((record) => (
-          <RecordCard key={record._id} record={record} />
+          <div key={record._id} className="border rounded p-4 shadow">
+            <RecordCard record={record} />
+            <ShareQR recordId={record._id} />
+          </div>
         ))}
       </div>
     </div>

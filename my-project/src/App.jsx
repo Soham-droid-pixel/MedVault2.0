@@ -7,6 +7,8 @@ import Dashboard from './pages/Dashboard';
 import UploadRecord from './pages/UploadRecord';
 import Appointments from './pages/Appointments';
 import ProtectedRoute from './components/ProtectedRoute';
+import SharedRecordView from './pages/SharedRecordView';
+
 
 const App = () => {
   return (
@@ -19,6 +21,7 @@ const App = () => {
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/upload" element={<ProtectedRoute><UploadRecord /></ProtectedRoute>} />
         <Route path="/appointments" element={<ProtectedRoute><Appointments /></ProtectedRoute>} />
+        <Route path="/shared/:token" element={<SharedRecordView />} />
       </Routes>
     </Router>
   );
