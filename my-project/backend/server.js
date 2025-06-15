@@ -5,11 +5,12 @@ const cloudinary = require('./config/cloudinary');
 const authRoutes = require('./routes/authRoutes');
 const recordRoutes = require('./routes/recordRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');
-const shareRoutes = require('./routes/shareRoutes'); // handles /generate and /access
+const shareRoutes = require('./routes/shareRoutes');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
+const axios =require('axios');
 
 dotenv.config();        // Load environment variables
 connectDB();            // Connect to MongoDB
@@ -28,7 +29,10 @@ app.use(rateLimit({ windowMs: 10 * 60 * 1000, max: 100 }));
 app.use('/api/auth', authRoutes);
 app.use('/api/records', recordRoutes);
 app.use('/api/appointments', appointmentRoutes);
-app.use('/api/share', shareRoutes); // QR generation and access
+app.use('/api/share', shareRoutes);
+
+// Import appointment controller to start cron jobs
+require('./controllers/appointmentController');
 
 // Error Handling
 app.use((err, req, res, next) => {
