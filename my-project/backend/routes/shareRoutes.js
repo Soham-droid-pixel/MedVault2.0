@@ -1,7 +1,7 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
 const Record = require('../models/Record');
-const auth = require('../middleware/auth');
+const auth = require('../middleware/authMiddleware'); // Fixed import path
 const router = express.Router();
 
 // Test route to verify the route is working
@@ -20,7 +20,7 @@ const createTransporter = () => {
     return null;
   }
 
-  return nodemailer.createTransporter({
+  return nodemailer.createTransport({ // Fixed: createTransport (not createTransporter)
     service: 'gmail',
     auth: {
       user: process.env.EMAIL_USER,
@@ -453,6 +453,45 @@ router.post('/test-email', auth, async (req, res) => {
       success: false, 
       message: 'Email test failed', 
       error: error.message 
+    });
+  }
+});
+
+// Add this test route at the end before module.exports
+router.post('/test-email-reminder', async (req, res) => {
+  try {
+    const sendEmailReminder = require('../utils/emailReminder');
+    
+    const testEmail = req.body.email || 'your-email@gmail.com'; // Replace with your email
+    
+    const testSubject = '🏥 Test Email Reminder - MedVault';
+    const testMessage = `Hello! This is a test email reminder from MedVault.
+
+Test Details:
+- Time: ${new Date().toLocaleString()}
+- Service: Email Reminder System
+- Status: ✅ Working correctly!
+
+If you received this email, your email reminder system is functioning properly.
+
+Best regards,
+MedVault Team`;
+
+    await sendEmailReminder(testEmail, testSubject, testMessage);
+    
+    res.json({
+      success: true,
+      message: 'Test email reminder sent successfully!',
+      sentTo: testEmail,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('Test email error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to send test email',
+      error: error.message
     });
   }
 });
