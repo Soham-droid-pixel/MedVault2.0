@@ -1,8 +1,3 @@
-Great! Here's a **short, professional, and updated README** reflecting the changes — including WhatsApp/email sharing and appointment reminder emails:
-
----
-
-````markdown
 # 🏥 MedVault – Smart Medical Record & Appointment Manager
 
 **MedVault** is a secure, full-stack web application to manage medical records and appointments with built-in reminders and sharing features.
