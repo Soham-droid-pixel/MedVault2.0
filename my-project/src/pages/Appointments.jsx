@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 import './Appointments.css';
 
 const Appointments = () => {
-  const [appointments, setAppointments] = useState([]);
+  const [appointments, setAppointments] = useState([]); // Always initialize as array
   const [formData, setFormData] = useState({
     doctor: '',
     date: '',
@@ -12,6 +12,7 @@ const Appointments = () => {
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchAppointments();
@@ -26,10 +27,36 @@ const Appointments = () => {
           'Authorization': `Bearer ${token}`
         }
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
-      setAppointments(data);
+      console.log('Appointments API Response:', data);
+      
+      // Handle both response formats
+      if (data.success !== undefined) {
+        // New structured response
+        setAppointments(data.appointments || []);
+        if (!data.success) {
+          toast.error(data.message || 'Failed to fetch appointments');
+        }
+      } else if (Array.isArray(data)) {
+        // Direct array response (fallback)
+        setAppointments(data);
+      } else {
+        // Unexpected format
+        console.error('Unexpected response format:', data);
+        setAppointments([]);
+        toast.error('Unexpected response format');
+      }
+      
     } catch (error) {
-      toast.error('Error fetching appointments');
+      console.error('Error fetching appointments:', error);
+      toast.error(`Error fetching appointments: ${error.message}`);
+      setAppointments([]);
+      setError('Failed to load appointments. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -113,6 +140,11 @@ const Appointments = () => {
     setShowForm(false);
   };
 
+  const resetError = () => {
+    setError(null);
+    fetchAppointments();
+  };
+
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -157,6 +189,21 @@ const Appointments = () => {
   const isUpcoming = (date) => {
     return new Date(date) > new Date();
   };
+
+  // Add error display in your render
+  if (error) {
+    return (
+      <div className="appointments-container">
+        <div className="error-state">
+          <h3>Error Loading Appointments</h3>
+          <p>{error}</p>
+          <button onClick={resetError} className="btn-primary">
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="appointments-container">

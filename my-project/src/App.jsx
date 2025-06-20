@@ -8,12 +8,14 @@ import UploadRecord from './pages/UploadRecord';
 import Appointments from './pages/Appointments';
 import ProtectedRoute from './components/ProtectedRoute';
 import SharedRecordView from './pages/SharedRecordView';
+import ErrorBoundary from './components/ErrorBoundary';
 
 
 const App = () => {
   return (
     <Router>
       <Navbar />
+      <ErrorBoundary>
       <Routes>
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/register" element={<Register />} />
@@ -23,6 +25,7 @@ const App = () => {
         <Route path="/appointments" element={<ProtectedRoute><Appointments /></ProtectedRoute>} />
         <Route path="/shared/:token" element={<SharedRecordView />} />
       </Routes>
+      </ErrorBoundary>
     </Router>
   );
 };
